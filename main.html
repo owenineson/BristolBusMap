@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Bristol Buses!</title>
+<meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
+<link href="https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.css" rel="stylesheet">
+<script src="https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.js"></script>
+<style>
+body { margin: 0; padding: 0; }
+#map { position: absolute; top: 0; bottom: 0; width: 100%; }
+</style>
+</head>
+<body>
+<div id="map"></div>
+<script>
+    
+    async function AddRoutes(map) {
+        const response = await fetch("https://transit.land/api/v2/rest/routes?operator_onestop_id=o-gcn-firstbristolbath~thewest&limit=500&include_geometry=true&apikey=8yS0MjjW17okOnAawc4jkxcEuGX8Dmxt");
+        const jsonData = await response.json();
+        jsonData.routes.forEach(element => {
+            map.addSource(element.onestop_id, {
+                'type': 'geojson',
+                'data': element.geometry
+            });
+            map.addLayer({
+                'id': element.onestop_id,
+                'type': 'line',
+                'source': element.onestop_id,
+                'layout': {
+                'line-join': 'round',
+                'line-cap': 'round'
+                },
+                'paint': {
+                'line-color': routeColour(element.route_short_name),
+                'line-width': 2
+                }
+            });
+        });
+    }
+
+    function routeColour(routeName) {
+        switch(routeName[0]) {
+            case '1':
+                return '#FF0000';
+            case '2':
+                return '#00FF00';
+            case '3':
+                return '#0000FF';
+            case '4':
+                return '#FFFF00';
+            case '5':
+                return '#00FFFF';
+            case '6':
+                return '#FF00FF';
+            case '7':
+                return '#FFA500';
+            case '8':
+                return '#000000';
+            case '9':
+                return '#FF69B4';
+            default:
+                return '#FFFFFF';
+        }
+
+    }
+
+    mapboxgl.accessToken = 'pk.eyJ1Ijoib3dlbmluZXNvbiIsImEiOiJjbGhjbHpubGIxMnZ0M2RxZnY2YWg1a2V6In0.x18e-QSkddzixrAA0L9EPQ';
+    const map = new mapboxgl.Map({
+    container: 'map',
+    // Choose from Mapbox's core styles, or make your own style with Mapbox Studio
+    style: 'mapbox://styles/mapbox/streets-v12',
+    center: [-2.597721125940424, 51.45315651701671],
+    zoom: 11
+    });
+    
+    map.on('load', () => {
+    
+    AddRoutes(map);
+    
+    // map.addSource('route', {
+    // 'type': 'geojson',
+    // 'data': "https://transit.land/api/v2/rest/routes/r-gcnh-1.geojson?apikey=8yS0MjjW17okOnAawc4jkxcEuGX8Dmxt"
+    // }
+    // );
+    // map.addLayer({
+    // 'id': 'route',
+    // 'type': 'line',
+    // 'source': 'route',
+    // 'layout': {
+    // 'line-join': 'round',
+    // 'line-cap': 'round'
+    // },
+    // 'paint': {
+    // 'line-color': '#888',
+    // 'line-width': 8
+    // }
+    // });
+    });
+    
+</script>
+</body>
+</html>
