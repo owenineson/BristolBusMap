@@ -1,97 +1,204 @@
 <!DOCTYPE html>
 <html>
-<head>
-<meta charset="utf-8">
-<title>Bristol Buses!</title>
-<meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
-<link href="https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.css" rel="stylesheet">
-<script src="https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.js"></script>
-<style>
-body { margin: 0; padding: 0; }
-#map { position: absolute; top: 0; bottom: 0; width: 100%; }
-</style>
-</head>
-<body>
-<div id="map"></div>
-<script>
-    
-    async function AddRoutes(map) {
-        
-        const response = await fetch("https://owenineson.github.io/BristolBusMap/grouped_routes.json");
-        const routesJson = await response.json();
-        
-        for (var key in routesJson) {
-            groupCoords = routesJson[key];
-            map.addSource(key, {
-                type: 'geojson',
-                data: {
-                    "type": "FeatureCollection",
-                    "features": [{
-                        "type": "Feature",
-                        "properties": {},
-                        'geometry': {
-                            'type': 'MultiLineString',
-                            'coordinates': groupCoords
-                            }
-                    }]
-                }
-            });
+  <head>
+    <meta charset="utf-8" />
+    <title>Bristol Buses!</title>
+    <meta
+      name="viewport"
+      content="initial-scale=1,maximum-scale=1,user-scalable=no"
+    />
+    <link
+      href="https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.css"
+      rel="stylesheet"
+    />
+    <script src="https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.js"></script>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+      }
+      #map {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 100%;
+      }
+      #menu {
+        background: #fff;
+        position: absolute;
+        z-index: 1;
+        top: 10px;
+        right: 10px;
+        border-radius: 3px;
+        width: 120px;
+        border: 1px solid rgba(0, 0, 0, 0.4);
+        font-family: "Open Sans", sans-serif;
+      }
 
-            map.addLayer({
-                'id': key,
-                'type': 'line',
-                'source': key,
-                'layout': {
-                'line-join': 'round',
-                'line-cap': 'round'
-                },
-                'paint': {
-                'line-color': routeColour(key),
-                'line-width': 2
-                }
-            });
-        };
+      #menu a {
+        font-size: 13px;
+        color: #404040;
+        display: block;
+        margin: 0;
+        padding: 0;
+        padding: 10px;
+        text-decoration: none;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.25);
+        text-align: center;
+      }
 
-    }
-    
-    function routeColour(routeName) {
-        switch(routeName[0]) {
-            case '1':
-                return '#FF0000';
-            case '2':
-                return '#00FF00';
-            case '3':
-                return '#0000FF';
-            case '4':
-                return '#FFFF00';
-            case '5':
-                return '#00FFFF';
-            case '6':
-                return '#FF00FF';
-            case '7':
-                return '#FFA500';
-            case '8':
-                return '#000000';
-            case '9':
-                return '#FF69B4';
-            default:
-                return '#FFFFFF';
-        }
+      #menu a:last-child {
+        border: none;
+      }
 
-    }
+      #menu a:hover {
+        background-color: #f8f8f8;
+        color: #404040;
+      }
 
-    mapboxgl.accessToken = 'pk.eyJ1Ijoib3dlbmluZXNvbiIsImEiOiJjbGhjbHpubGIxMnZ0M2RxZnY2YWg1a2V6In0.x18e-QSkddzixrAA0L9EPQ';
-    const map = new mapboxgl.Map({
-    container: 'map',
-    // Choose from Mapbox's core styles, or make your own style with Mapbox Studio
-    style: 'mapbox://styles/mapbox/light-v11',
-    center: [-2.597721125940424, 51.45315651701671],
-    zoom: 11
-    });
-    
-    map.on('load', () => AddRoutes(map)
-    );
-    
-</script>
-</body>
+      #menu a.active {
+        background-color: #3887be;
+        color: #ffffff;
+      }
+
+      #menu a.active:hover {
+        background: #3074a4;
+      }
+    </style>
+  </head>
+  <body>
+    <nav id="menu"></nav>
+    <div id="map"></div>
+    <script>
+
+          async function AddRoutes(map) {
+
+              const response = await fetch("https://owenineson.github.io/BristolBusMap/grouped_routes.json");
+              const routesJson = await response.json();
+
+              for (var key in routesJson) {
+                  groupCoords = routesJson[key];
+                  map.addSource(key, {
+                      type: 'geojson',
+                      data: {
+                          "type": "FeatureCollection",
+                          "features": [{
+                              "type": "Feature",
+                              "properties": {},
+                              'geometry': {
+                                  'type': 'MultiLineString',
+                                  'coordinates': groupCoords
+                                  }
+                          }]
+                      }
+                  });
+
+                  map.addLayer({
+                      'id': key,
+                      'type': 'line',
+                      'source': key,
+                      'layout': {
+                        'visibility': 'visible',
+                        'line-join': 'round',
+                        'line-cap': 'round'
+                      },
+                      'paint': {
+                        'line-color': routeColour(key),
+                        'line-width': 2
+                      }
+                  });
+              };
+
+          }
+
+          function routeColour(routeName) {
+              switch(routeName[0]) {
+                  case '1':
+                      return '#FF0000';
+                  case '2':
+                      return '#00FF00';
+                  case '3':
+                      return '#0000FF';
+                  case '4':
+                      return '#FFFF00';
+                  case '5':
+                      return '#00FFFF';
+                  case '6':
+                      return '#FF00FF';
+                  case '7':
+                      return '#FFA500';
+                  case '8':
+                      return '#000000';
+                  case '9':
+                      return '#FF69B4';
+                  default:
+                      return '#FFFFFF';
+              }
+
+          }
+
+          mapboxgl.accessToken = 'pk.eyJ1Ijoib3dlbmluZXNvbiIsImEiOiJjbGhjbHpubGIxMnZ0M2RxZnY2YWg1a2V6In0.x18e-QSkddzixrAA0L9EPQ';
+          const map = new mapboxgl.Map({
+          container: 'map',
+
+          style: 'mapbox://styles/mapbox/light-v11',
+          center: [-2.597721125940424, 51.45315651701671],
+          zoom: 11
+          });
+
+          map.on('load', () => AddRoutes(map));
+
+          map.on('idle', () => {
+            // Enumerate ids of the layers.
+            const toggleableLayerIds = ['1', '2', '3', '4', '5', '6', '7', '8', '9'];
+
+            // Set up the corresponding toggle button for each layer.
+            for (const id of toggleableLayerIds) {
+            // Skip layers that already have a button set up.
+            if (document.getElementById(id)) {
+                continue;
+            }
+
+            // Create a link.
+            const link = document.createElement('a');
+            link.id = id;
+            link.href = '#';
+            link.textContent = id;
+            link.className = 'active';
+
+            // Show or hide layer when the toggle is clicked.
+            link.onclick = function (e) {
+            const clickedLayer = this.textContent;
+            e.preventDefault();
+            e.stopPropagation();
+
+            const visibility = map.getLayoutProperty(
+                clickedLayer,
+                'visibility'
+            );
+
+            // Toggle layer visibility by changing the layout object's visibility property.
+            if (visibility === 'visible') {
+                map.setLayoutProperty(
+                    clickedLayer, 
+                    'visibility', 
+                    'none');
+                this.className = '';
+            } 
+            else {
+                this.className = 'active';
+                map.setLayoutProperty(
+                    clickedLayer,
+                    'visibility',
+                    'visible'
+                );
+            }
+            };
+
+            const layers = document.getElementById('menu');
+            layers.appendChild(link);
+        }});
+    </script>
+  </body>
 </html>
+          
