@@ -17,8 +17,40 @@ body { margin: 0; padding: 0; }
     
     async function AddRoutes(map) {
         
-        routesJson = require("./grouped_routes.json");
-        console.log(routesJson);
+        const response = await fetch("https://owenineson.github.io/BristolBusMap/grouped_routes.json");
+        const routesJson = await response.json();
+        
+        for (var key in routesJson) {
+            groupCoords = routesJson[key];
+            map.addSource(key, {
+                type: 'geojson',
+                data: {
+                    "type": "FeatureCollection",
+                    "features": [{
+                        "type": "Feature",
+                        "properties": {},
+                        'geometry': {
+                            'type': 'MultiLineString',
+                            'coordinates': groupCoords
+                            }
+                    }]
+                }
+            });
+
+            map.addLayer({
+                'id': key,
+                'type': 'line',
+                'source': key,
+                'layout': {
+                'line-join': 'round',
+                'line-cap': 'round'
+                },
+                'paint': {
+                'line-color': routeColour(key),
+                'line-width': 2
+                }
+            });
+        };
 
     }
     
